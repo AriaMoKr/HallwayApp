@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The hallway's page background and its accent (index.html's theme-color, the favicon). -->
+    <color name="hall_dark">#0b0907</color>
+    <color name="hall_gold">#e0bb72</color>
+</resources>

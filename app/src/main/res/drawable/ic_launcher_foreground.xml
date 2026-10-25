@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The favicon's doorway (its viewBox is 64), scaled 0.95 about its middle (32, 33) onto the
+     middle of 108: inside the adaptive icon's 66 dp safe circle. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.95"
+        android:scaleY="0.95"
+        android:translateX="23.6"
+        android:translateY="22.65">
+        <path android:fillColor="@color/hall_gold" android:pathData="M14 60V24a18 18 0 0 1 36 0v36h-6V24a12 12 0 0 0-24 0v36z" />
+        <path android:fillColor="@color/hall_gold" android:fillAlpha="0.45" android:pathData="M20 60V24a12 12 0 0 1 24 0v36z" />
+    </group>
+</vector>

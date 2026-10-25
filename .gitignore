@@ -1,0 +1,17 @@
+/build/
+/app/build/
+/.gradle/
+/.kotlin/
+/local.properties
+/captures/
+.idea/
+*.iml
+.DS_Store
+
+# A release keystore is the owner's, kept in the repository's secrets: never committed.
+*.jks
+*.keystore
+*.p12
+
+# tools/tv-check.mjs's reports
+/perf/

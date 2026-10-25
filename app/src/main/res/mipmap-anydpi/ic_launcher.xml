@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The hallway's favicon on its dark, for Android before 8, which has no adaptive icons. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path android:fillColor="@color/hall_dark" android:pathData="M0 0h64v64H0z" />
+    <path android:fillColor="@color/hall_gold" android:pathData="M14 60V24a18 18 0 0 1 36 0v36h-6V24a12 12 0 0 0-24 0v36z" />
+    <path android:fillColor="@color/hall_gold" android:fillAlpha="0.45" android:pathData="M20 60V24a12 12 0 0 1 24 0v36z" />
+</vector>

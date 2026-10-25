@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hallway</string>
+    <string name="elsewhere_title">Open it on another device</string>
+    <string name="elsewhere_message">No app on this TV opens this link. To see it, go to this address on a phone or a computer:\n\n%1$s</string>
+</resources>
