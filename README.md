@@ -114,9 +114,11 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   the hallway holds 60 fps there, standing, walking the hall and facing a doorway close up, with no
   frame dropped. At a pixel ratio of 3 it begins to drop frames facing the doors; the hallway
   renders at 2 at most.
-- **For TalkBack** the page names the 3D view, which holds the focus while walking, with the hint
-  under it as its description, and every control in the card (as the WebView's accessibility tree
-  shows them).
+- **TalkBack** speaks in the app. The page names the 3D view, which holds the focus while walking,
+  with the hint under it as its description, and every control in the card. But with TalkBack on,
+  TalkBack takes the D-pad for its own focus: the arrows move that through the page, reading each
+  thing, and OK presses what it is on. So the card's settings can be read and changed, but the
+  arrows don't walk or turn the view.
 
 ## Building it
 
