@@ -160,8 +160,19 @@ The dev server must listen on IPv4 for adb reverse: in the hallway, `node tools/
 `node tools/tv-check.mjs` checks the app on the TV connected over adb: it starts it (at `--url`, in
 a debug build), sees that it is in front and full screen, and, in a debug build, reports what the
 page gets (the user agent and TV mode, the viewport and pixel ratio, WebGL 2 and the GPU, the
-Gamepad API) and the frame rate standing, walking the hall and facing a door. It writes a report
-to `perf/` (`--help` lists the options).
+Gamepad API) and its frame rate standing. It writes a report to `perf/` (`--help` lists the
+options). Any site behind the doors can measure itself with it, on the live site or on a dev
+server over adb reverse:
+
+```bash
+node tools/tv-check.mjs --url https://ariamokr.github.io/outside/
+node tools/tv-check.mjs --url http://127.0.0.1:8089/     # a dev server on this computer, on IPv4
+```
+
+The hallway (a page with `window.__hallway`) is read from its own renderer, timed walking the hall
+and facing a door as well as standing, and must be in TV mode. Any other page is timed as it
+stands, with nothing pressed, and its WebGL 2 and GPU are read from a context the check makes and
+drops, so the page's own are left alone.
 
 Testing with scripts, mind that:
 

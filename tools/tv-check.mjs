@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // Checks the app on an Android TV over adb: starts it (a debug build at --url, if given), sees that
-// it is in front, finds its WebView's DevTools (a debug build's only), and reports what the page
-// gets: the user agent and TV mode, the viewport and pixel ratio, WebGL 2 and the GPU, the Gamepad
-// API, and the frame rate standing, walking the hall and facing a door. Writes a JSON report (and
-// the screen, --screenshot) to perf/ and prints a summary. --help for usage.
+// it is in front and full screen, finds its WebView's DevTools (a debug build's only), and reports
+// what the page gets: the user agent and TV mode, the viewport and pixel ratio, WebGL 2 and the
+// GPU, the Gamepad API, and the frame rate standing. Any site will do: the hallway is read from its
+// own renderer and walked too (the hall to its end, then facing a door); another page from a WebGL 2
+// context of the check's own, and timed as it stands. Writes a JSON report (and the screen,
+// --screenshot) to perf/ and prints a summary. --help for usage.
 
 import { execFile } from 'node:child_process';
 import fs from 'node:fs';
@@ -18,7 +20,7 @@ const APP = 'io.github.ariamokr.hallway';
 const HELP = `Usage: node tools/tv-check.mjs [options]
 
 Options:
-  --url <url>      the page to open (a debug build only; else the app's own start, the hallway)
+  --url <url>      the page to open, any site (a debug build only; else the app's own start, the hallway)
   --serial <id>    adb device serial (else ANDROID_SERIAL, or the one device connected)
   --seconds <n>    how long to time each phase (default 4)
   --screenshot     also save the screen as a PNG
@@ -28,7 +30,11 @@ Options:
 Needs Node 22 or later (its WebSocket) and adb (on the PATH, or in ANDROID_HOME's platform-tools),
 with the TV connected (adb connect <tv-address>) and the app installed. A release build has no
 DevTools, so for it the check stops once the app is in front. A --url on this computer's
-localhost is reached over adb reverse.`;
+localhost is reached over adb reverse.
+
+The hallway (a page with window.__hallway) is timed standing at its entrance, walking the hall and
+facing a door, and must be in TV mode. Any other page is timed standing, as it is, for its own
+loop; its WebGL facts come from a context the check makes and drops, so its own are left alone.`;
 
 const { values: opt } = parseArgs({
   options: {
@@ -44,6 +50,7 @@ if (opt.help) {
   console.log(HELP);
   process.exit(0);
 }
+const MS = Number(opt.seconds) * 1000;
 
 const ADB = (() => {
   const home = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
@@ -79,13 +86,11 @@ if (!report.device.app) {
 }
 
 // Start it, awake, in front, at the page asked for.
+const want = opt.url ? new URL(opt.url) : null;
 const reversed = [];
-if (opt.url) {
-  const u = new URL(opt.url);
-  if (['localhost', '127.0.0.1'].includes(u.hostname) && u.port) {
-    await adb('reverse', `tcp:${u.port}`, `tcp:${u.port}`);
-    reversed.push(u.port);
-  }
+if (want && ['localhost', '127.0.0.1'].includes(want.hostname) && want.port) {
+  await adb('reverse', `tcp:${want.port}`, `tcp:${want.port}`);
+  reversed.push(want.port);
 }
 await shell('input keyevent KEYCODE_WAKEUP');
 await shell(`am start -W -n ${APP}/.MainActivity${opt.url ? ` --es url '${opt.url}'` : ''}`);
@@ -101,6 +106,13 @@ report.launch.fullScreen = !!frame && frame === win.match(/display=(\[\S+\])/)?.
 const cleanUp = async (forwarded) => {
   if (forwarded) await adb('forward', '--remove', `tcp:${forwarded}`).catch(() => {});
   for (const port of reversed) await adb('reverse', '--remove', `tcp:${port}`).catch(() => {});
+};
+
+/** Whether a page's address is the one asked for (a page may drop its query, or add a slash). */
+const isWanted = (href) => {
+  if (!want) return true;
+  const u = new URL(href);
+  return u.origin === want.origin && u.pathname.replace(/\/$/, '') === want.pathname.replace(/\/$/, '');
 };
 
 async function inspect(port) {
@@ -128,37 +140,64 @@ async function inspect(port) {
     return m.result.result.value;
   };
   try {
-    for (let i = 0; i < 40 && !(await evaluate('!!window.__hallway?.renderer')); i++) await sleep(500);
-    report.page = await evaluate(`(() => {
-      const r = window.__hallway?.renderer, gl = r?.getContext();
-      const info = gl?.getExtension('WEBGL_debug_renderer_info');
-      return {
-        url: location.href,
-        userAgent: navigator.userAgent,
-        tvMode: document.documentElement.classList.contains('tv'),
-        hallwayTV: typeof window.hallwayTV?.back === 'function' && typeof window.hallwayTV?.menu === 'function',
-        viewport: innerWidth + 'x' + innerHeight,
-        devicePixelRatio,
-        pixelRatio: r?.getPixelRatio() ?? null,
-        buffer: r ? r.domElement.width + 'x' + r.domElement.height : null,
-        webgl2: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext,
-        gpu: gl ? gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) : null,
-        maxTexture: gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? null,
-        gamepadAPI: typeof navigator.getGamepads === 'function',
-        gamepads: typeof navigator.getGamepads === 'function' ? [...navigator.getGamepads()].filter(Boolean).map((p) => p.id) : [],
-      };
-    })()`);
-    if (await evaluate('!!window.__hallway?.layout')) report.frames = await evaluate(FRAMES.replace('MS', String(Number(opt.seconds) * 1000)));
+    // Loaded: the page asked for, complete, and the hallway's renderer up; or, on another site, a
+    // canvas (its scene) for 3 s, or 15 s with none. Mid-navigation an evaluation can fail: try again.
+    let since = 0;
+    for (let i = 0; i < 90; i++) {
+      const s = await evaluate(`({ href: location.href, ready: document.readyState, hallway: !!window.__hallway?.renderer, canvas: !!document.querySelector('canvas') })`).catch(() => null);
+      if (s && s.ready === 'complete' && isWanted(s.href)) {
+        since ||= Date.now();
+        if (s.hallway || Date.now() - since > (s.canvas ? 3000 : 15000)) break;
+      } else since = 0;
+      await sleep(500);
+    }
+    report.page = await evaluate(FACTS);
+    report.frames = await evaluate(report.page.hallway ? HALLWAY_FRAMES : STAND_FRAMES);
   } finally {
     ws.close();
   }
 }
 
-// Evaluated in the hallway: rAF intervals at its own pixel ratio, standing at the entrance, walking
-// the hall to its end, and facing the first open door from 0.6 m off its wall (the doorway then
-// fills most of the view). A frame counts as dropped over 25 ms, 1.5 frames at 60 Hz.
-const FRAMES = `(async () => {
-  const h = __hallway, L = h.layout, c = h.controls, ms = MS;
+// Evaluated in the page. The hallway's facts come from its renderer; another page's GPU from a
+// WebGL 2 context of the check's own (WebGL 1 if there is no 2), lost again at once, and its pixel
+// ratio from its largest canvas, if it has one.
+const FACTS = `(() => {
+  const r = window.__hallway?.renderer;
+  let gl = r?.getContext() ?? null;
+  const own = !gl;
+  if (own) {
+    const c = document.createElement('canvas');
+    gl = c.getContext('webgl2') || c.getContext('webgl');
+  }
+  const info = gl?.getExtension('WEBGL_debug_renderer_info');
+  const webgl = {
+    webgl2: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext,
+    gpu: gl ? gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) : null,
+    maxTexture: gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? null,
+  };
+  if (own) gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  const canvas = r?.domElement ?? [...document.querySelectorAll('canvas')].sort((a, b) => b.width * b.height - a.width * a.height)[0];
+  return {
+    url: location.href,
+    title: document.title,
+    hallway: !!r,
+    userAgent: navigator.userAgent,
+    tvMode: document.documentElement.classList.contains('tv'),
+    hallwayTV: typeof window.hallwayTV?.back === 'function' && typeof window.hallwayTV?.menu === 'function',
+    viewport: innerWidth + 'x' + innerHeight,
+    devicePixelRatio,
+    pixelRatio: r ? r.getPixelRatio() : canvas?.clientWidth ? Math.round((canvas.width / canvas.clientWidth) * 100) / 100 : null,
+    buffer: canvas ? canvas.width + 'x' + canvas.height : null,
+    ...webgl,
+    ownContext: own,
+    gamepadAPI: typeof navigator.getGamepads === 'function',
+    gamepads: typeof navigator.getGamepads === 'function' ? [...navigator.getGamepads()].filter(Boolean).map((p) => p.id) : [],
+  };
+})()`;
+
+// rAF intervals, after a moment's warming up. A frame counts as dropped over 25 ms, 1.5 frames at 60 Hz.
+const TIMING = `
+  const ms = ${MS};
   const frames = (dur, each) => new Promise((resolve) => {
     const out = [];
     let last = 0, start = 0;
@@ -175,7 +214,12 @@ const FRAMES = `(async () => {
   const sum = (xs) => {
     const s = [...xs].sort((a, b) => a - b), mean = xs.reduce((a, b) => a + b, 0) / xs.length;
     return { fps: Math.round(10000 / mean) / 10, dropped: xs.filter((x) => x > 25).length, p95: Math.round(s[Math.floor(s.length * 0.95)] * 10) / 10, worst: Math.round(s[s.length - 1] * 10) / 10, frames: xs.length };
-  };
+  };`;
+
+// The hallway at its own pixel ratio: standing at the entrance, walking the hall to its end, and
+// facing the first open door from 0.6 m off its wall (the doorway then fills most of the view).
+const HALLWAY_FRAMES = `(async () => {${TIMING}
+  const h = __hallway, L = h.layout, c = h.controls;
   const pose = [c.rig.position.x, c.rig.position.z, c.rig.rotation.y];
   const door = L.doors.find((d) => d.env);
   const out = {};
@@ -189,6 +233,12 @@ const FRAMES = `(async () => {
   out.door = sum(await frames(ms));
   c.setPose(...pose);
   return out;
+})()`;
+
+// Any other page, as it stands: nothing is moved or pressed.
+const STAND_FRAMES = `(async () => {${TIMING}
+  await frames(800);
+  return { stand: sum(await frames(ms)) };
 })()`;
 
 async function finish() {
@@ -207,16 +257,19 @@ async function finish() {
   console.log(`In front: ${report.launch.inFront ? 'yes' : 'NO'}; full screen: ${report.launch.fullScreen ? 'yes' : 'NO'} (${report.launch.frame})`);
   if (!report.launch.devtools) console.log('No DevTools (a release build): nothing more to check.');
   if (p) {
-    console.log(`Page: ${p.url}`);
-    console.log(`TV mode: ${p.tvMode ? 'yes' : 'NO'}; hallwayTV: ${p.hallwayTV ? 'yes' : 'NO'}; ${p.userAgent.match(/HallwayTV\/\S+/)?.[0] ?? 'no HallwayTV in the user agent'}`);
-    console.log(`Viewport ${p.viewport} at ${p.devicePixelRatio}x; rendering at ${p.pixelRatio}x, ${p.buffer}`);
-    console.log(`WebGL 2: ${p.webgl2 ? 'yes' : 'NO'}; ${p.gpu}; textures up to ${p.maxTexture}`);
+    console.log(`Page: ${p.url}${p.title ? ` (${p.title})` : ''}${p.hallway ? ', the hallway' : ''}`);
+    if (want && !isWanted(p.url)) console.log(`NOT the page asked for (${opt.url})`);
+    console.log(`TV mode: ${p.tvMode ? 'yes' : p.hallway ? 'NO' : 'no'}; hallwayTV: ${p.hallwayTV ? 'yes' : p.hallway ? 'NO' : 'no'}; ${p.userAgent.match(/HallwayTV\/\S+/)?.[0] ?? 'no HallwayTV in the user agent'}`);
+    console.log(`Viewport ${p.viewport} at ${p.devicePixelRatio}x; ${p.buffer ? `rendering at ${p.pixelRatio}x, ${p.buffer}` : 'no canvas'}`);
+    console.log(`WebGL 2: ${p.webgl2 ? 'yes' : 'NO'}${p.ownContext ? ' (a context of the check\'s own)' : ''}; ${p.gpu}; textures up to ${p.maxTexture}`);
     console.log(`Gamepad API: ${p.gamepadAPI ? 'yes' : 'no'}${p.gamepads.length ? ` (${p.gamepads.join(', ')})` : ''}`);
   }
-  if (f) for (const phase of ['stand', 'walk', 'door']) console.log(`${phase.padEnd(6)} ${f[phase].fps} fps, ${f[phase].dropped} dropped of ${f[phase].frames}, p95 ${f[phase].p95} ms, worst ${f[phase].worst} ms`);
-  if (f) console.log(`Draw calls: ${f.drawCalls}`);
+  if (f) for (const phase of ['stand', 'walk', 'door']) if (f[phase]) console.log(`${phase.padEnd(6)} ${f[phase].fps} fps, ${f[phase].dropped} dropped of ${f[phase].frames}, p95 ${f[phase].p95} ms, worst ${f[phase].worst} ms`);
+  if (f?.drawCalls !== undefined) console.log(`Draw calls: ${f.drawCalls}`);
   console.log(`Report: ${path.relative(process.cwd(), file)}`);
-  process.exit(report.launch.inFront && report.launch.fullScreen && (!p || (p.tvMode && p.webgl2)) ? 0 : 1);
+  // A page that loaded where asked, with WebGL 2; the hallway in TV mode too.
+  const pageOK = !p || (isWanted(p.url) && p.webgl2 && (!p.hallway || (p.tvMode && p.hallwayTV)));
+  process.exit(report.launch.inFront && report.launch.fullScreen && pageOK ? 0 : 1);
 }
 
 // Its WebView's DevTools: a debug build's only.
