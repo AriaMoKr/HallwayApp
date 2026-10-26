@@ -30,7 +30,8 @@ import java.util.function.Consumer;
 /**
  * The hallway, full screen, in the system's WebView. Pages on its origin stay in the app; other
  * links go to the app on the device that opens them, or a message gives the address. The remote's
- * D-pad reaches the page as arrow keys and Enter (WebView's own mapping). Back asks the page first
+ * D-pad reaches the page as arrow keys and Enter (WebView's own mapping), but with TalkBack on its
+ * arrows never reach the app at all (README, "The page and the app"). Back asks the page first
  * (window.hallwayTV.back(), README "The page and the app"), then goes back a page, then leaves; a
  * long press of Back, or Menu, calls window.hallwayTV.menu().
  */

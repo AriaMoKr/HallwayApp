@@ -66,7 +66,8 @@ adb uninstall io.github.ariamokr.hallway
 From a room behind a door, Back comes back to the hallway in front of that door. The
 hallway's README, [The TV app](https://github.com/AriaMoKr/hallway#the-tv-app), says more,
 including joining a shared session by typing its room. A gamepad paired with the TV works too:
-the WebView passes it to the page through the Gamepad API.
+the WebView passes it to the page through the Gamepad API. With TalkBack on, the arrows are
+TalkBack's and don't walk, but a gamepad does (see "The page and the app").
 
 Links to pages on `ariamokr.github.io` stay in the app. Any other link goes to the app on the TV
 that opens it (YouTube's, for a YouTube link; a choice when several do). When none does, a message
@@ -114,11 +115,19 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   the hallway holds 60 fps there, standing, walking the hall and facing a doorway close up, with no
   frame dropped. At a pixel ratio of 3 it begins to drop frames facing the doors; the hallway
   renders at 2 at most.
-- **TalkBack** speaks in the app. The page names the 3D view, which holds the focus while walking,
-  with the hint under it as its description, and every control in the card. But with TalkBack on,
-  TalkBack takes the D-pad for its own focus: the arrows move that through the page, reading each
-  thing, and OK presses what it is on. So the card's settings can be read and changed, but the
-  arrows don't walk or turn the view.
+- **TalkBack** (14.2) speaks in the app. The page names the 3D view, which holds the focus while
+  walking, with the hint under it as its description, and every control in the card. But with
+  TalkBack on, the arrows don't walk or turn the view, and neither the page nor the app can make
+  them: on a TV, TalkBack takes the D-pad's arrows before any app's window gets them (its
+  `TelevisionNavigationController`, which lets them by only while an on-screen keyboard is up), so
+  `dispatchKeyEvent` never sees them, whatever the page's roles say (`role="application"` on the
+  view changes nothing). They move TalkBack's own focus through the page instead, in its order (up
+  and left back, down and right on), reading each thing, and OK presses what it is on, so the
+  card's settings can be read and changed. What still reaches the page with TalkBack on: OK on the
+  view (TalkBack passes OK on for a web element it can't click), which uses what the dot is on;
+  Menu and Back; the remote's channel and media keys (as `ChannelUp`, `MediaFastForward` and so
+  on, which the hallway doesn't use); and a gamepad, whose sticks walk and turn as they do without
+  TalkBack.
 
 ## Building it
 
@@ -157,7 +166,12 @@ to `perf/` (`--help` lists the options).
 Testing with scripts, mind that:
 
 - `adb shell input keyevent KEYCODE_DPAD_UP` (and `_CENTER`, `KEYCODE_MENU`, `KEYCODE_BACK`) presses
-  the remote's keys, but the page gets them with an empty `code`.
+  the remote's keys, but the page gets them with an empty `code`. They also go round TalkBack
+  (injected keys skip the accessibility services' key filter), so to see what TalkBack does with
+  the remote, make a virtual one: `adb shell hid -` reads JSON commands from its input, `register`
+  with a HID descriptor (the consumer page's Menu Up, Down, Left, Right and Pick, Menu and AC Back
+  as one-bit fields), then `report` and `delay`. A gamepad (the generic desktop page's Game Pad,
+  with buttons and X, Y, Z, Rz) can be made the same way.
 - Chromium leaves out of Back's history a page nobody pressed a key on, so a script that follows a
   link must press a real key on the page first, or Back leaves the app instead of coming back.
 - On a TV with no touchscreen, WebView moves the focus with the arrows a page doesn't take
