@@ -67,7 +67,8 @@ From a room behind a door, Back comes back to the hallway in front of that door.
 hallway's README, [The TV app](https://github.com/AriaMoKr/hallway#the-tv-app), says more,
 including joining a shared session by typing its room. A gamepad paired with the TV works too:
 the WebView passes it to the page through the Gamepad API. With TalkBack on, the arrows are
-TalkBack's and don't walk, but a gamepad does (see "The page and the app").
+TalkBack's and don't walk, but the remote's channel up and down walk the hallway, and its rewind
+and fast-forward turn; a gamepad walks and turns too (see "The page and the app").
 
 Links to pages on `ariamokr.github.io` stay in the app. Any other link goes to the app on the TV
 that opens it (YouTube's, for a YouTube link; a choice when several do). When none does, a message
@@ -126,8 +127,11 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   card's settings can be read and changed. What still reaches the page with TalkBack on: OK on the
   view (TalkBack passes OK on for a web element it can't click), which uses what the dot is on;
   Menu and Back; the remote's channel and media keys (as `ChannelUp`, `MediaFastForward` and so
-  on, which the hallway doesn't use); and a gamepad, whose sticks walk and turn as they do without
-  TalkBack.
+  on); and a gamepad, whose sticks walk and turn as they do without TalkBack. So the hallway walks
+  with channel up and down and turns with rewind and fast-forward, as its hint says with TalkBack
+  on: AriaMoKr/common's `tv.js` (`keyOf`, which its README's "The TV app" asks every site behind
+  the doors to read its keys through) takes those four as the arrows. On this TV they reach the
+  page, and the app stays in front.
 
 ## Building it
 
@@ -181,7 +185,8 @@ Testing with scripts, mind that:
   (injected keys skip the accessibility services' key filter), so to see what TalkBack does with
   the remote, make a virtual one: `adb shell hid -` reads JSON commands from its input, `register`
   with a HID descriptor (the consumer page's Menu Up, Down, Left, Right and Pick, Menu and AC Back
-  as one-bit fields), then `report` and `delay`. A gamepad (the generic desktop page's Game Pad,
+  as one-bit fields, and Channel Increment and Decrement, Rewind and Fast Forward for the keys
+  TalkBack leaves to the page), then `report` and `delay`. A gamepad (the generic desktop page's Game Pad,
   with buttons and X, Y, Z, Rz) can be made the same way.
 - Chromium leaves out of Back's history a page nobody pressed a key on, so a script that follows a
   link must press a real key on the page first, or Back leaves the app instead of coming back.
