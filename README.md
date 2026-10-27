@@ -74,11 +74,10 @@ Links to pages on `ariamokr.github.io` stay in the app. Any other link goes to t
 that opens it (YouTube's, for a YouTube link; a choice when several do). When none does, a message
 gives the address, to open on a phone or a computer.
 
-**Behind the doors.** vrlbry, Breadboard 8-bit's VR view and Outside take the remote as the hallway
-does (AriaMoKr/common's `tv.js`): the arrows walk and turn, OK uses what the dot in the middle is
-on, Menu goes to the card, and Back takes one step back at a time before it comes back to their
-door in the hallway; nothing was found that Back skips or takes twice. music, art and video weren't
-looked at again (they're next): the lines for them are from before. On the remote:
+**Behind the doors.** Every site there takes the remote as the hallway does (AriaMoKr/common's
+`tv.js`): the arrows walk and turn, OK uses what the dot in the middle is on, Menu goes to the card,
+and Back takes one step back at a time before it comes back to their door in the hallway; nothing
+was found that Back skips or takes twice. On the remote:
 
 - **vrlbry**: OK takes the book at the dot and reads it, and ← → turn its pages. Menu reaches the
   book's buttons (Contents, the text size, Theme, 1 page, In front of me, Put back, Text view, the
@@ -107,8 +106,28 @@ looked at again (they're next): the lines for them are from before. On the remot
   opens it but leaves the focus in the card, so ← → turn the pages only after Back; Menu while
   reading goes to ← Hallway, with the book's buttons below it; and sitting, the hint still says how
   to walk until the book is open.
-- **music**: the arrows walk and turn. Its links and buttons can't be reached, and OK does nothing.
-- **art** and **video**: the arrows walk. Start shared session and Settings can't be reached.
+- **music** has vrlbry's remote, and what's said of vrlbry above holds for it too: the books, their
+  buttons and text view, the card, the search. In the text view, OK goes to the first link on the
+  screen, ↑ ↓ from link to link, and OK on a Listen link plays it. While a sound plays, the Now
+  playing bar's Pause (or Play), Stop and Next sound are stops of the card, after the search box
+  (in the text view, after its toolbar), and OK presses them; Stop gives the focus back to walking.
+  The remote's media keys press them wherever the focus is: Play/Pause, Play, Stop and Next. The
+  sound goes out as media, so the TV's own volume sets how loud it is (it was at 0 of 100 then, so
+  nothing was heard). Back closes the text view, then puts the book back, then leaves. Still
+  awkward, beside vrlbry's: nothing on the remote starts the gramophone's queue, so Next has
+  nothing to go to after a Listen link's one sound. The dot passes over the gramophone, which
+  stands below it; the stand's ♪ Listen tab is above it; and in a book's contents ↑ ↓ only scroll
+  and ← → turn the page, so its ♪ Sounds tab, with Play all, can't be chosen. (The gramophone was
+  started from DevTools here.) A Pause key sent as a Bluetooth remote's (HID consumer usage 0xB1)
+  reaches the page as `Pause`, Android's BREAK key, and does nothing; Android's MEDIA_PAUSE
+  (`MediaPause`) pauses. In the text view, ↓ past the toolbar goes on into the text's links from
+  the top of the part, and the view jumps back there.
+- **art** and **video** have the template's remote. OK on the doorway goes back to the hallway
+  (tried in video). Menu reaches ← Hallway, Start shared session and Settings: OK starts a shared
+  session (then Leave, Wave, your name and the address to join from) or opens Settings, whose
+  choices ↑ ↓ go through and ← → change. Back leaves the card, then leaves. Still awkward: in a
+  shared session, the name box brings the TV's keyboard up as soon as it has the focus, and it has
+  the arrows until Back hides it.
 
 ## The page and the app
 
@@ -127,9 +146,9 @@ OK's key event has no `code`, only `key`). The app keeps Back and Menu, and asks
   with none to go back to, leaves.
 - **Menu**, or holding **Back**, calls `window.hallwayTV.menu()`.
 
-A page without `hallwayTV` gets the plain Back. vrlbry, Breadboard 8-bit's VR view and Outside have
-it (AriaMoKr/common's `tv.js`, `answerApp`), so Back there goes one step at a time. A link that
-leaves the origin opens elsewhere, as above; one that stays is loaded in the app.
+A page without `hallwayTV` gets the plain Back. Every site behind the doors has it
+(AriaMoKr/common's `tv.js`, `answerApp`), so Back there goes one step at a time. A link that leaves
+the origin opens elsewhere, as above; one that stays is loaded in the app.
 
 What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, WebView 155):
 
@@ -143,12 +162,17 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   renders at 2 at most. Behind the doors (`tools/tv-check.mjs --url`, and the same timing in place,
   standing; a frame over 25 ms counts as dropped):
   - **vrlbry**, at a pixel ratio of 2: 60 fps with a book open, with no frame dropped; among the
-    full shelves 57.5 fps (15 of 346 frames dropped), and 60 facing a half-empty bookcase; at the way
-    in 53.5 fps (39 of 322 dropped, the slowest 5 % at 33 ms), the one place short of 60.
+    full shelves 57.5 fps (15 of 346 frames dropped), and 60 facing a half-empty bookcase; at the
+    way in 53.5 fps (39 of 322 dropped, the slowest 5 % at 33 ms), the one place short of 60.
   - **Breadboard 8-bit**, at a pixel ratio of 2 with the clock running at 4 Hz: 59.3 fps (4 of 357
     dropped); run up to 64 Hz, 57.5.
   - **Outside**, in its lighter TV mode (a pixel ratio of 1, 960 × 540): 60 fps with no frame
     dropped at the way in, by the pond and reading on the bench.
+  - **music**, at a pixel ratio of 2: at the way in 52.3 and 53 fps (42–46 of about 316 dropped),
+    as in vrlbry; among the shelves 55.3 to 57.8; with the gramophone playing, 56.3 among the
+    shelves and 58.4 facing it.
+  - **art** and **video**, each still an empty room, at a pixel ratio of 2: 59.9 fps with no frame
+    dropped, at the way in and turned.
 - **TalkBack** (14.2) speaks in the app. The page names the 3D view, which holds the focus while
   walking, with the hint under it as its description, and every control in the card. But with
   TalkBack on, the arrows don't walk or turn the view, and neither the page nor the app can make
@@ -165,18 +189,26 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   on: AriaMoKr/common's `tv.js` (`keyOf`, which its README's "The TV app" asks every site behind
   the doors to read its keys through) takes those four as the arrows. On this TV they reach the
   page, and the app stays in front.
-- **TalkBack behind the doors.** In vrlbry, Breadboard 8-bit and Outside, OK on the hallway's door
-  goes through, and TalkBack reads the view's name and the hint as its description, as in the
-  hallway ("A candle-lit library…", "Ben Eater's 8-bit computer on a table…", "A small garden…").
-  Channel up and down walk and rewind and fast-forward turn in all three, and Menu and Back do what
-  they do without TalkBack; in the card, its arrows read each control and OK presses it.
+- **TalkBack behind the doors.** In every site there, OK on the hallway's door goes through, and
+  TalkBack reads the view's name and the hint as its description, as in the hallway ("A candle-lit
+  library…", "Ben Eater's 8-bit computer on a table…", "A small garden…", "A music room…", "art: a
+  floor, four walls and a ceiling…", "video: …"). Channel up and down walk and rewind and
+  fast-forward turn in all of them, and Menu and Back do what they do without TalkBack; in the card,
+  its arrows read each control and OK presses it.
   - **vrlbry**: Menu goes to the search box, so the TV's keyboard comes up and TalkBack's focus goes
     to its keys; once Back has hidden it, TalkBack's arrows go through the card. Its hint, unlike
-    the others', doesn't say that the channel and media keys walk and turn with TalkBack on.
+    the others' (but as music's), doesn't say that the channel and media keys walk and turn with
+    TalkBack on.
+  - **music**: as vrlbry. Once Back has hidden the keyboard, TalkBack's ↓ goes on from the search
+    box to the help, the hint and, while a sound plays, the Now playing bar: what plays, its book,
+    Pause, Stop and Next sound, which OK presses. The media keys press them with TalkBack on too.
   - **Breadboard 8-bit**: Menu goes to ← Hallway, and TalkBack reads the bar (the two ways back, the
     title, Controls, Wires, Comfort, Start shared session), then the view and the status line.
   - **Outside**: Menu goes to ← Hallway, and TalkBack reads the card; OK on Read the book sits and
     opens it, and once Back has left the card, rewind and fast-forward turn its pages.
+  - **art** and **video**: Menu goes to ← Hallway, and TalkBack reads the card (the room's line,
+    Start shared session, Settings, which OK opens), then the view and the hint. The hint has faded
+    out by then, so TalkBack's box is on an empty spot.
 
 ## Building it
 
