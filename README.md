@@ -59,75 +59,80 @@ adb uninstall io.github.ariamokr.hallway
 |---|---|---|
 | ↑ ↓ | walk | from control to control |
 | ← → | turn | change a choice (Move, Turn, Motion) |
-| OK | use what the dot in the middle is on: a door, a panel button, the floor | press, tick, or open the keyboard in a box |
+| OK | use what the dot in the middle is on: a door, a panel button, the floor | press or tick (a text box: see "The keyboard" below) |
 | Menu, or hold Back | the card: the doors list, Together, Settings | walk again |
 | Back | back a page; with none to go back to, leave the app | walk again |
 
 From a room behind a door, Back comes back to the hallway in front of that door. The
 hallway's README, [The TV app](https://github.com/AriaMoKr/hallway#the-tv-app), says more,
-including joining a shared session by typing its room. A gamepad paired with the TV works too:
-the WebView passes it to the page through the Gamepad API. With TalkBack on, the arrows are
-TalkBack's and don't walk, but the remote's channel up and down walk the hallway, and its rewind
-and fast-forward turn; a gamepad walks and turns too (see "The page and the app").
+including joining a shared session by typing its room (which the remote can't type yet: see "The
+keyboard" below). A gamepad paired with the TV works too: the WebView passes it to the page
+through the Gamepad API. With TalkBack on, the arrows are TalkBack's and don't walk, but the
+remote's channel up and down walk the hallway, and its rewind and fast-forward turn; a gamepad
+walks and turns too (see "The page and the app").
 
 Links to pages on `ariamokr.github.io` stay in the app. Any other link goes to the app on the TV
 that opens it (YouTube's, for a YouTube link; a choice when several do). When none does, a message
 gives the address, to open on a phone or a computer.
 
 **Behind the doors.** Every site there takes the remote as the hallway does (AriaMoKr/common's
-`tv.js`): the arrows walk and turn, OK uses what the dot in the middle is on, Menu goes to the card,
-and Back takes one step back at a time before it comes back to their door in the hallway; nothing
-was found that Back skips or takes twice. On the remote:
+`tv.js`): the arrows walk and turn, OK uses what the dot in the middle is on, Menu goes to the card
+(to the control last left there, else the site's first), and Back takes one step back at a time
+before it comes back to their door in the hallway; nothing was found that Back skips or takes
+twice. The remote steps onto a text box and past it with the TV's keyboard down, but can't type in
+it (see "The keyboard" below). On the remote:
 
-- **vrlbry**: OK takes the book at the dot and reads it, and ← → turn its pages. Menu reaches the
-  book's buttons (Contents, the text size, Theme, 1 page, In front of me, Put back, Text view, the
-  help) or, with no book out, the card: the search, the library's Kiwix and ZIM controls, each
-  library's Close, Collapse and ← Hallway. With the dot on the catalogue stand's lists or on a
-  book's contents, ↑ ↓ scroll them and OK chooses; the text view scrolls with ↑ ↓. Back closes the
-  contents, then the text view, then puts the book back, then leaves. Still awkward: Menu goes first
-  to the search box, so the TV's keyboard comes up at once and has the arrows until Back hides it
-  (the ZIM file's address does the same on the way up the card); and ↓ goes through the search's
-  results, but OK on the box brings the keyboard back rather than opening the one chosen. Only the
-  keyboard's own search key opens it.
+- **vrlbry**: OK takes the book at the dot and reads it, and ← → turn its pages. Menu goes to the
+  Controls help, or with a book out to its first button (Read, then Contents once it's open), and
+  reaches the book's buttons (Contents, the text size, Theme, 1 page, In front of me, Put back,
+  Text view) or, with no book out, the card: the search, the library's Kiwix and ZIM controls, each
+  library's Close, Collapse and ← Hallway. ↓ from the search box goes into its results, and OK
+  opens the one chosen. With the dot on the catalogue stand's lists or on a book's contents, ↑ ↓
+  scroll them and OK chooses. The text view scrolls with ↑ ↓, and ↓ past its toolbar goes to the
+  first link on the screen below it, with the view where it was (with no link there, the focus
+  stays on the toolbar). Back closes the contents, then the text view, then puts the book back,
+  then leaves.
 - **Breadboard 8-bit**: OK presses what the dot is on: the panel's buttons (Stop and Run stop and
   run the clock), a switch (SW2 to manual stops the clock), a pot (OK holds RV1, ← → turn it, from
   0.8 to 21 Hz here, and OK or Back lets go). Menu reaches the bar: the two ways back, Controls (the
   panel's buttons), Wires, Comfort and Start shared session. Back leaves the bar, then flies back to
-  the table, then leaves. Still awkward: the view looks down at a fixed angle, and a tap of ← or →
-  turns it some 40 pixels, so landing the dot on a small part (RV1, SW2) takes a few tries. A pot's
-  label still says "drag up or down". At the table, the bar's "VR view" title sits over the panel's
-  "Breadboard 8-bit".
+  the table, then leaves. The room is drawn below the bar, from a home view a little further back
+  and lower, so the bar's "VR view" no longer sits over the panel. A tap of ← or → turns 1.5°, and
+  the dot takes a part just beside it, which then holds it for two taps: from SW1, one tap left
+  lands on RV1 and one right on SW2. The label over the dot names the part ("SW2 auto/manual:
+  auto"), and a pot's says how the remote turns it: "RV1 speed · OK to hold, then ← and →, OK or
+  Back to let go · 4 Hz". Held, ↑ soon goes fast: two seconds took the view past the end of the
+  table (Back brings it home).
 - **Outside**: OK on the ground walks there, on the bench sits, and sitting opens the book; ← → turn
-  its pages, and OK opens its contents (↑ ↓ through them). Menu reaches the card (Sit on the bench,
-  Read the book, Start shared session, Settings, ← Hallway) and, reading, the book's buttons, Text
-  view, Get up and Put the book down. In the text view ↑ ↓ read on, ← → go a page and Menu reaches
-  its toolbar. Back leaves the card, then closes the text view or the contents, puts the book down,
-  stands up, then leaves. Nothing was found out of reach. Still awkward: Read the book in the card
-  opens it but leaves the focus in the card, so ← → turn the pages only after Back; Menu while
-  reading goes to ← Hallway, with the book's buttons below it; and sitting, the hint still says how
-  to walk until the book is open.
-- **music** has vrlbry's remote, and what's said of vrlbry above holds for it too: the books, their
-  buttons and text view, the card, the search. In the text view, OK goes to the first link on the
-  screen, ↑ ↓ from link to link, and OK on a Listen link plays it. While a sound plays, the Now
-  playing bar's Pause (or Play), Stop and Next sound are stops of the card, after the search box
-  (in the text view, after its toolbar), and OK presses them; Stop gives the focus back to walking.
-  The remote's media keys press them wherever the focus is: Play/Pause, Play, Stop and Next. The
-  sound goes out as media, so the TV's own volume sets how loud it is (it was at 0 of 100 then, so
-  nothing was heard). Back closes the text view, then puts the book back, then leaves. Still
-  awkward, beside vrlbry's: nothing on the remote starts the gramophone's queue, so Next has
-  nothing to go to after a Listen link's one sound. The dot passes over the gramophone, which
-  stands below it; the stand's ♪ Listen tab is above it; and in a book's contents ↑ ↓ only scroll
-  and ← → turn the page, so its ♪ Sounds tab, with Play all, can't be chosen. (The gramophone was
-  started from DevTools here.) A Pause key sent as a Bluetooth remote's (HID consumer usage 0xB1)
-  reaches the page as `Pause`, Android's BREAK key, and does nothing; Android's MEDIA_PAUSE
-  (`MediaPause`) pauses. In the text view, ↓ past the toolbar goes on into the text's links from
-  the top of the part, and the view jumps back there.
+  its pages, and OK opens its contents (↑ ↓ through them). Menu reaches the card (← Hallway, Sit on
+  the bench, Read the book, Start shared session, Settings) and, reading, goes to Contents, the
+  first of the book's buttons (Contents, the text size, One page, Theme, Text view, Bring the book
+  in front of me, Get up). Sit on the bench and Read the book in the card give the focus back to the
+  view, so ← → turn the pages at once. Sitting, the hint says "OK: read the book · Back: stand up ·
+  Menu or hold Back: the card". In the text view ↑ ↓ read on, ← → go a page and Menu reaches its
+  toolbar. Back leaves the card, then closes the text view or the contents, puts the book down,
+  stands up, then leaves. Nothing was found out of reach.
+- **music** has vrlbry's remote, and what's said of vrlbry above holds for it too. Its view rests
+  tipped down a little, as outside's does, and the dot lands on the gramophone (from 2 m, on its
+  horn): OK plays the sounds of a book picked at random. In a book's contents ← → choose Contents
+  or ♪ Sounds, and ↑ ↓ go through the rows and Play all, which OK plays. In the text view, OK goes
+  to the first link on the screen, ↑ ↓ from link to link, and OK on a Listen link plays it; Next
+  then goes on to the book's next sound. While a sound plays, the Now playing bar's Pause (or
+  Play), Stop and Next sound are stops of the card, after the search box (in the text view, after
+  its toolbar), and OK presses them; Stop gives the focus back to walking. The remote's media keys
+  press them wherever the focus is: Play/Pause, Play, Pause, Stop and Next. A Bluetooth remote's
+  Pause (HID consumer usage 0xB1, which reaches the page as `Pause`) pauses, and pressed again stays
+  paused. The sound goes out as media, so the TV's own volume sets how loud it is: at 15 of 100 the
+  app's stream played on the TV's speakers, the page's synth peaking at 0.59 (−18 dB RMS), but
+  nobody was in the room to hear it. Back closes the text view, then puts the book back, then
+  leaves. In screenshots (not seen from across the room) the tipped view looks right: the shelves
+  fill it, with the rug below; at the way in, the scores on the wall are cut by the top edge. Still
+  awkward: with the dot on the gramophone, the hint still says OK takes the book at the dot. Some
+  Listen links' sounds are a few notes, over in three seconds.
 - **art** and **video** have the template's remote. OK on the doorway goes back to the hallway
   (tried in video). Menu reaches ← Hallway, Start shared session and Settings: OK starts a shared
   session (then Leave, Wave, your name and the address to join from) or opens Settings, whose
-  choices ↑ ↓ go through and ← → change. Back leaves the card, then leaves. Still awkward: in a
-  shared session, the name box brings the TV's keyboard up as soon as it has the focus, and it has
-  the arrows until Back hides it.
+  choices ↑ ↓ go through and ← → change. Back leaves the card, then leaves.
 
 ## The page and the app
 
@@ -139,7 +144,8 @@ how the hallway knows to show its TV view (bigger text, focus rings to be seen a
 Enter VR or Fullscreen, the remote's keys).
 
 The remote's D-pad reaches the page as the arrow keys and its OK as Enter (WebView's own mapping;
-OK's key event has no `code`, only `key`). The app keeps Back and Menu, and asks the page:
+OK's key event has no `code`, only `key`), except on a text box, where the WebView keeps OK (see
+"The keyboard" below). The app keeps Back and Menu, and asks the page:
 
 - **Back** (a short press) calls `window.hallwayTV.back()`. When the page returns `true` it used the
   key (the hallway's card gives the focus back to walking); otherwise the app goes back a page, or,
@@ -164,13 +170,15 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   - **vrlbry**, at a pixel ratio of 2: 60 fps with a book open, with no frame dropped; among the
     full shelves 57.5 fps (15 of 346 frames dropped), and 60 facing a half-empty bookcase; at the
     way in 53.5 fps (39 of 322 dropped, the slowest 5 % at 33 ms), the one place short of 60.
-  - **Breadboard 8-bit**, at a pixel ratio of 2 with the clock running at 4 Hz: 59.3 fps (4 of 357
-    dropped); run up to 64 Hz, 57.5.
+  - **Breadboard 8-bit**, at a pixel ratio of 2 with the clock running at 4 Hz: from the new home
+    view, drawn below the bar (1920 × 838), 60 fps with no frame dropped; from the old one, 59.3
+    (4 of 357 dropped), and run up to 64 Hz, 57.5.
   - **Outside**, in its lighter TV mode (a pixel ratio of 1, 960 × 540): 60 fps with no frame
     dropped at the way in, by the pond and reading on the bench.
-  - **music**, at a pixel ratio of 2: at the way in 52.3 and 53 fps (42–46 of about 316 dropped),
-    as in vrlbry; among the shelves 55.3 to 57.8; with the gramophone playing, 56.3 among the
-    shelves and 58.4 facing it.
+  - **music**, at a pixel ratio of 2, its view resting tipped down: at the way in 52.1 and 52.3 fps
+    (46–47 of about 314 dropped), as before and as in vrlbry; among the shelves 54.5, and 53.5
+    turned (55.6 and 52.6 with the gramophone playing); facing the gramophone 59.9 with no frame
+    dropped, and 58.4 while it plays (7 of 351 dropped).
   - **art** and **video**, each still an empty room, at a pixel ratio of 2: 59.9 fps with no frame
     dropped, at the way in and turned.
 - **TalkBack** (14.2) speaks in the app. The page names the 3D view, which holds the focus while
@@ -195,20 +203,31 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   floor, four walls and a ceiling…", "video: …"). Channel up and down walk and rewind and
   fast-forward turn in all of them, and Menu and Back do what they do without TalkBack; in the card,
   its arrows read each control and OK presses it.
-  - **vrlbry**: Menu goes to the search box, so the TV's keyboard comes up and TalkBack's focus goes
-    to its keys; once Back has hidden it, TalkBack's arrows go through the card. Its hint, unlike
-    the others' (but as music's), doesn't say that the channel and media keys walk and turn with
-    TalkBack on.
-  - **music**: as vrlbry. Once Back has hidden the keyboard, TalkBack's ↓ goes on from the search
-    box to the help, the hint and, while a sound plays, the Now playing bar: what plays, its book,
-    Pause, Stop and Next sound, which OK presses. The media keys press them with TalkBack on too.
+  - **vrlbry**: Menu goes to the Controls help and the keyboard stays down, even with TalkBack's
+    focus on the search box; TalkBack's arrows go through the card. Its hint, as the others' now,
+    says that the channel and media keys walk and turn with TalkBack on.
+  - **music** wasn't tried again with TalkBack on. Before its changes, Menu brought the keyboard up
+    as vrlbry's did; once Back had hidden it, TalkBack's ↓ went on from the search box to the help,
+    the hint and, while a sound played, the Now playing bar (what plays, its book, Pause, Stop and
+    Next sound), which OK pressed. The media keys pressed them with TalkBack on too.
   - **Breadboard 8-bit**: Menu goes to ← Hallway, and TalkBack reads the bar (the two ways back, the
     title, Controls, Wires, Comfort, Start shared session), then the view and the status line.
   - **Outside**: Menu goes to ← Hallway, and TalkBack reads the card; OK on Read the book sits and
     opens it, and once Back has left the card, rewind and fast-forward turn its pages.
-  - **art** and **video**: Menu goes to ← Hallway, and TalkBack reads the card (the room's line,
-    Start shared session, Settings, which OK opens), then the view and the hint. The hint has faded
-    out by then, so TalkBack's box is on an empty spot.
+  - **art** and **video**: Menu goes to ← Hallway (or the control last left in the card), and
+    TalkBack reads the card (the room's line, Start shared session, Settings, which OK opens), then
+    the view, where it stays: once the hint has faded, it's no longer a stop.
+- **The keyboard.** A text box the remote steps onto keeps the TV's keyboard down (common v0.6.1's
+  `tv.js` gives it `inputmode="none"`), and it stays down stepping past: the hallway's Join box and
+  your name in a shared session, vrlbry's and music's search and ZIM file address, and your name in
+  art's shared session. But OK on the box doesn't bring it up, so none of them can be typed in with
+  the remote. The WebView keeps the remote's OK (DPAD_CENTER) on a text box to show the keyboard
+  itself, which `inputmode="none"` stops, and the page gets no key event at all, so `tv.js` never
+  hears the OK it waits for. Without `inputmode="none"` (a box Back has hidden the keyboard from),
+  OK brings the keyboard up, and the page again hears nothing. Enter does reach the page (a
+  keyboard's, or `adb shell input keyevent KEYCODE_ENTER`): `tv.js` then brings the keyboard up
+  without submitting the form. Nothing in the page can hear that OK; the app could pass it on to
+  the WebView as Enter.
 
 ## Building it
 
