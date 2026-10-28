@@ -30,8 +30,9 @@ import java.util.function.Consumer;
 /**
  * The hallway, full screen, in the system's WebView. Pages on its origin stay in the app; other
  * links go to the app on the device that opens them, or a message gives the address. The remote's
- * D-pad reaches the page as arrow keys and Enter (WebView's own mapping), but with TalkBack on its
- * arrows never reach the app at all (README, "The page and the app"). Back asks the page first
+ * D-pad reaches the page as arrow keys and Enter (WebView's own mapping; on a text box the app
+ * passes OK on as Enter itself), but with TalkBack on its arrows never reach the app at all
+ * (README, "The page and the app"). Back asks the page first
  * (window.hallwayTV.back(), README "The page and the app"), then goes back a page, then leaves; a
  * long press of Back, or Menu, calls window.hallwayTV.menu().
  */
@@ -170,7 +171,10 @@ public final class MainActivity extends Activity {
                 .show();
     }
 
-    // ── The remote's Back and Menu ───────────────────────────────────────────────────────────
+    // ── The remote's Back, Menu and OK ───────────────────────────────────────────────────────
+
+    /** Whether the OK held now goes to the page as Enter: its repeats and key up go the same way. */
+    private boolean okAsEnter;
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -180,7 +184,22 @@ public final class MainActivity extends Activity {
         if (code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_MENU) {
             return event.dispatch(this, getWindow().getDecorView().getKeyDispatcherState(), this);
         }
+        // OK on a text box: the WebView would keep it to show the keyboard itself, which a box the
+        // remote stepped onto keeps down (inputmode="none"), and the page would never hear it. As
+        // Enter it reaches the page, whose remote brings the keyboard up (README, "The keyboard").
+        if (code == KeyEvent.KEYCODE_DPAD_CENTER) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                okAsEnter = web.onCheckIsTextEditor();
+            }
+            if (okAsEnter) return super.dispatchKeyEvent(asEnter(event));
+        }
         return super.dispatchKeyEvent(event);
+    }
+
+    /** The same key event, as Enter (no scan code, so the page's code comes from the key). */
+    private static KeyEvent asEnter(KeyEvent e) {
+        return new KeyEvent(e.getDownTime(), e.getEventTime(), e.getAction(), KeyEvent.KEYCODE_ENTER,
+                e.getRepeatCount(), e.getMetaState(), e.getDeviceId(), 0, e.getFlags(), e.getSource());
     }
 
     @Override

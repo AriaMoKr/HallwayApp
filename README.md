@@ -59,17 +59,16 @@ adb uninstall io.github.ariamokr.hallway
 |---|---|---|
 | ↑ ↓ | walk | from control to control |
 | ← → | turn | change a choice (Move, Turn, Motion) |
-| OK | use what the dot in the middle is on: a door, a panel button, the floor | press or tick (a text box: see "The keyboard" below) |
+| OK | use what the dot in the middle is on: a door, a panel button, the floor | press, tick, or bring the keyboard up in a box |
 | Menu, or hold Back | the card: the doors list, Together, Settings | walk again |
 | Back | back a page; with none to go back to, leave the app | walk again |
 
 From a room behind a door, Back comes back to the hallway in front of that door. The
 hallway's README, [The TV app](https://github.com/AriaMoKr/hallway#the-tv-app), says more,
-including joining a shared session by typing its room (which the remote can't type yet: see "The
-keyboard" below). A gamepad paired with the TV works too: the WebView passes it to the page
-through the Gamepad API. With TalkBack on, the arrows are TalkBack's and don't walk, but the
-remote's channel up and down walk the hallway, and its rewind and fast-forward turn; a gamepad
-walks and turns too (see "The page and the app").
+including joining a shared session by typing its room. A gamepad paired with the TV works too:
+the WebView passes it to the page through the Gamepad API. With TalkBack on, the arrows are
+TalkBack's and don't walk, but the remote's channel up and down walk the hallway, and its rewind
+and fast-forward turn; a gamepad walks and turns too (see "The page and the app").
 
 Links to pages on `ariamokr.github.io` stay in the app. Any other link goes to the app on the TV
 that opens it (YouTube's, for a YouTube link; a choice when several do). When none does, a message
@@ -79,8 +78,8 @@ gives the address, to open on a phone or a computer.
 `tv.js`): the arrows walk and turn, OK uses what the dot in the middle is on, Menu goes to the card
 (to the control last left there, else the site's first), and Back takes one step back at a time
 before it comes back to their door in the hallway; nothing was found that Back skips or takes
-twice. The remote steps onto a text box and past it with the TV's keyboard down, but can't type in
-it (see "The keyboard" below). On the remote:
+twice. The remote steps onto a text box and past it with the TV's keyboard down, and OK on the box
+brings it up (see "The keyboard" below). On the remote:
 
 - **vrlbry**: OK takes the book at the dot and reads it, and ← → turn its pages. Menu goes to the
   Controls help, or with a book out to its first button (Read, then Contents once it's open), and
@@ -144,8 +143,9 @@ how the hallway knows to show its TV view (bigger text, focus rings to be seen a
 Enter VR or Fullscreen, the remote's keys).
 
 The remote's D-pad reaches the page as the arrow keys and its OK as Enter (WebView's own mapping;
-OK's key event has no `code`, only `key`), except on a text box, where the WebView keeps OK (see
-"The keyboard" below). The app keeps Back and Menu, and asks the page:
+OK's key event has no `code`, only `key`). On a text box the app sends OK on as Enter itself, as
+the WebView would keep it (see "The keyboard" below). The app keeps Back and Menu, and asks the
+page:
 
 - **Back** (a short press) calls `window.hallwayTV.back()`. When the page returns `true` it used the
   key (the hallway's card gives the focus back to walking); otherwise the app goes back a page, or,
@@ -220,14 +220,16 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
 - **The keyboard.** A text box the remote steps onto keeps the TV's keyboard down (common v0.6.1's
   `tv.js` gives it `inputmode="none"`), and it stays down stepping past: the hallway's Join box and
   your name in a shared session, vrlbry's and music's search and ZIM file address, and your name in
-  art's shared session. But OK on the box doesn't bring it up, so none of them can be typed in with
-  the remote. The WebView keeps the remote's OK (DPAD_CENTER) on a text box to show the keyboard
-  itself, which `inputmode="none"` stops, and the page gets no key event at all, so `tv.js` never
-  hears the OK it waits for. Without `inputmode="none"` (a box Back has hidden the keyboard from),
-  OK brings the keyboard up, and the page again hears nothing. Enter does reach the page (a
-  keyboard's, or `adb shell input keyevent KEYCODE_ENTER`): `tv.js` then brings the keyboard up
-  without submitting the form. Nothing in the page can hear that OK; the app could pass it on to
-  the WebView as Enter.
+  art's shared session. OK on the box brings it up, without submitting the form, and OK on its
+  keys then types. Left to itself, the WebView would keep the remote's OK (DPAD_CENTER) on a text
+  box to show the keyboard itself, which `inputmode="none"` stops, and the page would get no key
+  event at all, so `tv.js` would never hear the OK it waits for. So when the WebView says a text
+  box has the focus (`onCheckIsTextEditor()`), the app sends OK on as Enter (`MainActivity`,
+  `dispatchKeyEvent`), and `tv.js` brings the keyboard up. While the keyboard is up it takes OK
+  before the app does. Once Back has hidden it, the box keeps the focus but no longer holds the
+  keyboard down, so OK there is Enter as on a computer: it submits the box (the hallway's empty
+  Join box says how a room is named). Stepping off the box and back, OK brings the keyboard up
+  again. Not tried with TalkBack on.
 
 ## Building it
 
