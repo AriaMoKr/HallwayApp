@@ -14,8 +14,10 @@ release has `hallway-tv.apk`, and the latest one is always at
 https://github.com/AriaMoKr/HallwayApp/releases/latest/download/hallway-tv.apk
 ```
 
-(`tv-latest`, a prerelease, is the latest build from `main`.) It needs Android 7 or later on the
-TV, and was made on Android TV 12.
+The latest release is **1.1.0** (`tv-v1.1.0`), the first in which OK on a text box brings the TV's
+keyboard up, so the remote can type in it (see "The keyboard" below); in 1.0.0, OK on a box does
+nothing. (`tv-latest`, a prerelease, is the latest build from `main`.) It needs Android 7 or later
+on the TV, and was made on Android TV 12.
 
 **With a computer**, over the network, with adb (Android's platform tools):
 
@@ -52,6 +54,9 @@ old one first (which forgets the app's settings and your name in shared sessions
 ```bash
 adb uninstall io.github.ariamokr.hallway
 ```
+
+So it was for 1.1.0, whose APK is signed with its own debug key: over the build before it,
+`adb install -r` says `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, and after the uninstall it installs.
 
 ## Using it
 
@@ -204,12 +209,18 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   fast-forward turn in all of them, and Menu and Back do what they do without TalkBack; in the card,
   its arrows read each control and OK presses it.
   - **vrlbry**: Menu goes to the Controls help and the keyboard stays down, even with TalkBack's
-    focus on the search box; TalkBack's arrows go through the card. Its hint, as the others' now,
-    says that the channel and media keys walk and turn with TalkBack on.
-  - **music** wasn't tried again with TalkBack on. Before its changes, Menu brought the keyboard up
-    as vrlbry's did; once Back had hidden it, TalkBack's ↓ went on from the search box to the help,
-    the hint and, while a sound played, the Now playing bar (what plays, its book, Pause, Stop and
-    Next sound), which OK pressed. The media keys pressed them with TalkBack on too.
+    focus on the search box; TalkBack's arrows go through the card, and OK on the search box brings
+    the keyboard up (see "The keyboard"). Its hint, as the others' now, says that the channel and
+    media keys walk and turn with TalkBack on.
+  - **music** (with the build from `3e8be56`, as 1.1.0): Menu goes to the Controls help and the
+    keyboard stays down. OK on the gramophone plays a book (The Shanty Book) and brings up the Now
+    playing bar. TalkBack's ↓ then goes from the help to the card's hint, a stop with the page's
+    one-pixel status line (which says what is playing, from which book), and the bar: what plays,
+    its book, Pause (Play while paused), Stop and Next sound, where it stays; OK presses each. While
+    it plays, each time the sound changes (a shanty lasts seconds) TalkBack's focus goes back to the
+    help, so the bar is read whole once paused. The media keys work with TalkBack on: Play/Pause
+    and Pause pause, Play plays again (and leaves a playing sound playing), Stop stops, and Next
+    goes to the next sound.
   - **Breadboard 8-bit**: Menu goes to ← Hallway, and TalkBack reads the bar (the two ways back, the
     title, Controls, Wires, Comfort, Start shared session), then the view and the status line.
   - **Outside**: Menu goes to ← Hallway, and TalkBack reads the card; OK on Read the book sits and
@@ -229,7 +240,12 @@ What was found on the TV it was made on (Sony BRAVIA 4K VH21, Android TV 12, Web
   before the app does. Once Back has hidden it, the box keeps the focus but no longer holds the
   keyboard down, so OK there is Enter as on a computer: it submits the box (the hallway's empty
   Join box says how a room is named). Stepping off the box and back, OK brings the keyboard up
-  again. Not tried with TalkBack on.
+  again. With release 1.1.0 installed from its `hallway-tv.apk` (`versionName` 1.1.0 in
+  `dumpsys package`), the hallway's Join box and vrlbry's search keep the keyboard down stepping
+  onto them and past, and OK on either brings it up; a search there ("golf", typed with adb) lists
+  articles from vrlbry's ZIM files, and OK opens one.
+  With TalkBack on (tried in vrlbry's search): TalkBack's arrows step onto the box and the keyboard
+  stays down; OK on it brings the keyboard up, and TalkBack's focus goes to its keys.
 
 ## Building it
 
